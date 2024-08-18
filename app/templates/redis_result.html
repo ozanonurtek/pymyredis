@@ -1,0 +1,17 @@
+{% extends "appbuilder/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Redis Command Result</h1>
+    <h3>Connection: {{ connection.name }}</h3>
+    <h4>Command: {{ command }} {{ args|join(' ') }}</h4>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Result</h3>
+            <pre>{{ result }}</pre>
+        </div>
+    </div>
+    <a href="{{ url_for('RedisDetailView.redis_detail', connection_id=connection.id) }}" class="btn btn-primary">Back to
+        Connection Details</a>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "appbuilder/base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        {% for connection, info in redis_connections %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ connection.name }}</h5>
+                    <p class="card-text">Type: {{ connection.deployment_type }}</p>
+                    <p class="card-text">CPU Usage: {{ info.cpu_usage }}</p>
+                    <p class="card-text">Memory Usage: {{ info.memory_usage }}</p>
+                    <p class="card-text">Status: {{ info.status }}</p>
+                    <a href="{{ url_for('RedisConnectionView.show', pk=connection.id) }}" class="btn btn-primary">Details</a>
+                    <a href="{{ url_for('RedisConnectionView.test_connection', id=connection.id) }}"
+                       class="btn btn-secondary">Test Connection</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

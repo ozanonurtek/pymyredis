@@ -1,0 +1,124 @@
+{% extends "appbuilder/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Redis Connection: {{ connection.name }}</h1>
+    <p><strong>Type:</strong> {{ connection.deployment_type.value }}</p>
+    <p><strong>Description:</strong> {{ connection.description }}</p>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Keys</h3>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+
+                        <div class="input-group-append">
+                            <input type="text" class="form-control" id="keySearch" placeholder="Search keys...">
+                            <button class="btn btn-outline-secondary" type="button" onclick="searchKeys()">Search
+                            </button>
+                        </div>
+                        <ul style="height: 20em; border: 1px solid #ccc; overflow-y: scroll;" id="keyList"
+                            class="list-group"></ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Data</h3>
+                </div>
+                <div class="card-body">
+                    <pre id="dataDisplay" class="bg-light p-3 rounded" style="max-height: 500px; overflow: auto;"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Execute Command</h3>
+                </div>
+                <div class="card-body">
+                    <form id="commandForm">
+                        <div class="form-group mr-2">
+                            <textarea class="form-control" id="command" name="command"
+                                      placeholder="command(exapmle set x 2)" {% if
+                                      not can_write %}readonly{% endif %}></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" {% if not can_write %}disabled{% endif %}>
+                            Execute
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById('commandForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        executeCommand(document.getElementById('command').value);
+    });
+
+    function executeCommand(command) {
+        fetch('{{ url_for("RedisDetailView.execute_command", connection_id=connection.id) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({command: command}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('dataDisplay').textContent = 'Error: ' + data.error;
+            } else {
+                displayData(data.result);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            document.getElementById('dataDisplay').textContent = 'Error: ' + error;
+        });
+    }
+
+    function loadClusterData() {
+        executeCommand('keys *');
+    }
+
+    function searchKeys() {
+        const pattern = document.getElementById('keySearch').value || '*';
+        executeCommand('keys ' + pattern);
+    }
+
+    function displayData(data) {
+        let displayContent;
+        if (Array.isArray(data)) {
+            displayContent = data.join('\n');
+            document.getElementById('keyList').innerHTML = data.map(key =>
+                `<li class="list-group-item">
+                    <a href="#" onclick="loadKeyData('${key}'); return false;">${key}</a>
+                </li>`
+            ).join('');
+        } else {
+                displayContent = data;
+                document.getElementById('dataDisplay').innerHTML = data;
+                searchKeys()
+        }
+
+
+    }
+
+    function loadKeyData(key) {
+        executeCommand('get ' + key);
+    }
+
+    loadClusterData();
+</script>
+{% endblock %}
