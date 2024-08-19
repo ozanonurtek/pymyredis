@@ -1,17 +1,38 @@
 from flask_appbuilder import Model
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Enum, Text
 from sqlalchemy.orm import relationship
 from flask_appbuilder.models.mixins import AuditMixin
 from flask_appbuilder.security.sqla.models import User
 from app.enums import TeamRedisPermission, RedisDeploymentType
-
+from flask_login import current_user
 from markupsafe import Markup
 from flask import url_for
+from datetime import datetime
 
 user_team = Table('user_team', Model.metadata,
                   Column('user_id', Integer, ForeignKey('ab_user.id')),
                   Column('team_id', Integer, ForeignKey('team.id'))
                   )
+
+
+class BaseModel(Model, AuditMixin):
+    __abstract__ = True
+
+    @property
+    def created_activity(self):
+        return f"{self.__class__.__name__} with id: {self.id} and properties {self.__repr__()} has been created."
+
+    @property
+    def updated_activity(self):
+        return f"{self.__class__.__name__} with id: {self.id} and properties {self.__repr__()} has been updated."
+
+    @property
+    def deleted_activity(self):
+        return f"{self.__class__.__name__} with id: {self.id} and properties {self.__repr__()} has been deleted."
+
+    @property
+    def show_activity(self):
+        return f"{self.__class__.__name__} with id: {self.id} and properties {self.__repr__()} has been displayed."
 
 
 class ExtendUser(User):
@@ -67,7 +88,7 @@ class ExtendUser(User):
         return False
 
 
-class RedisConnection(Model, AuditMixin):
+class RedisConnection(BaseModel):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)
     deployment_type = Column(Enum(RedisDeploymentType), nullable=False)
@@ -108,8 +129,11 @@ class RedisConnection(Model, AuditMixin):
     def __repr__(self):
         return f"{self.name} - {self.description}"
 
+    def execute_activity(self, command, result):
+        return f"Following command: {command} has been executed on {self.__class__.__name__} with id: {self.id} and properties {self.__repr__()}. Execution result: {result}"
 
-class Team(Model, AuditMixin):
+
+class Team(BaseModel):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)
     description = Column(String(256))
@@ -120,7 +144,7 @@ class Team(Model, AuditMixin):
         return self.name
 
 
-class TeamRedisRole(Model, AuditMixin):
+class TeamRedisRole(BaseModel):
     id = Column(Integer, primary_key=True)
     team_id = Column(Integer, ForeignKey('team.id'), nullable=False)
     connection_id = Column(Integer, ForeignKey('redis_connection.id'), nullable=False)
@@ -131,3 +155,11 @@ class TeamRedisRole(Model, AuditMixin):
 
     def __repr__(self):
         return f"{self.team.name} - {self.permission}"
+
+
+class Activity(BaseModel):
+    id = Column(Integer, primary_key=True)
+    message = Column(Text, nullable=False)
+
+    def __repr__(self):
+        return f"{self.id}"

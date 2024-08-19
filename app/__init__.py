@@ -27,8 +27,10 @@ def create_views(app):
     from app.views.redis_detail import RedisDetailView
     from app.views.team import TeamView
     from app.views.team_redis_role import TeamRedisRoleView
+    from app.views.activity import ActivityView
 
     appbuilder.add_view(RedisConnectionView, "Connections", icon="fa-database")
     appbuilder.add_view(TeamView, "Teams", icon="fa-users")
     appbuilder.add_view(TeamRedisRoleView, "TeamRedisRole", icon="fa-vcard")
+    appbuilder.add_view(ActivityView, 'ActivityFeed', icon="fa-file-text-o")
     appbuilder.add_view_no_menu(RedisDetailView)
