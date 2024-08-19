@@ -2,8 +2,9 @@ from flask import g, jsonify, request, redirect, url_for, flash
 from flask_appbuilder import expose, has_access
 from app.models import RedisConnection
 from flask import g
-from app.redis_manager import redis_manager
+# from app.redis_manager import redis_manager
 from app.views.base import CustomBaseView
+from app.redis_manager import command_router
 
 
 class RedisDetailView(CustomBaseView):
@@ -46,7 +47,8 @@ class RedisDetailView(CustomBaseView):
             return jsonify({'error': 'You do not have permission to execute this command'}), 403
 
         try:
-            result = redis_manager.execute_command(connection.id, command)
+            print(command)
+            result = command_router.route_command(connection.id, command)
             if isinstance(result, list):
                 result = [r.decode('utf-8') if isinstance(r, bytes) else r for r in result]
             else:
