@@ -4,3 +4,10 @@ description: A Helm chart for pymyredis application
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
+maintainers:
+  - name: Ozan Onur TEK
+    email: ozanonurtek@gmail.com
+keywords:
+  - python
+  - redis
+home: https://github.com/ozanonurtek/pymyredis

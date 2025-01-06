@@ -14,12 +14,14 @@ spec:
       labels:
         {{- include "pymyredis.selectorLabels" . | nindent 8 }}
     spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: FLASK_CONFIG
               value: "/config/config.py"
@@ -29,14 +31,20 @@ spec:
             - name: data-volume
               mountPath: /data
           resources:
+            {{- if .Values.resources }}
             {{- toYaml .Values.resources | nindent 12 }}
+            {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
       volumes:
         - name: config-volume
           configMap:
             name: {{ include "pymyredis.fullname" . }}-config
+        {{- if .Values.persistence.enabled }}
         - name: data-volume
           persistentVolumeClaim:
             claimName: {{ include "pymyredis.fullname" . }}-pvc
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
