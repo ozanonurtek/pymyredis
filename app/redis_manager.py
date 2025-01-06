@@ -31,9 +31,11 @@ class RedisManager:
                 self.connections[connection_id] = redis.Redis(
                     host=connection.host,
                     port=connection.port,
-                    db=connection.db,
-                    password=connection.password
+                    db=connection.db
                 )
+                if connection.password:
+                    self.connections[connection_id].password = connection.password
+
             elif connection.deployment_type == RedisDeploymentType.SENTINEL:
                 sentinel_hosts = [tuple(h.split(':')) for h in connection.sentinel_hosts.split(',')]
                 sentinel = Sentinel(sentinel_hosts, password=connection.password)

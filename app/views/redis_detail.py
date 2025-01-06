@@ -38,23 +38,15 @@ class RedisDetailView(CustomBaseView):
 
         command = request.json.get('command')
 
-        can_execute = ((command.startswith("keys") or command.startswith("get")) or \
-                       g.user.can_cluster_admin(connection_id)) or (
-                              g.user.can_write(connection_id) and command.startswith("set"))
-
-        if not can_execute:
-            self.save_activity_log(connection.execute_activity(command, "Unauthorized"))
-            return jsonify({'error': 'You do not have permission to execute this command'}), 403
-
         try:
             print(command)
-            result = command_router.route_command(connection.id, command)
+            result = command_router.route_command(connection.id, command, g.user, connection_id)
             if isinstance(result, list):
                 result = [r.decode('utf-8') if isinstance(r, bytes) else r for r in result]
             else:
                 result = result.decode('utf-8') if isinstance(result, bytes) else result
 
-            self.save_activity_log(connection.execute_activity(command, "Authorized. Executed successfuly"))
+            self.save_activity_log(connection.execute_activity(command, "Authorized. Executed successfully"))
             return jsonify({'result': result})
         except Exception as e:
             err = str(e)

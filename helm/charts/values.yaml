@@ -1,0 +1,51 @@
+# Default values for pymyredis
+replicaCount: 1
+
+image:
+  repository: pymyredis
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+config: |
+  import os
+
+  CSRF_ENABLED = True
+  SECRET_KEY = "{{ .Values.app.secretKey }}"
+  # Flask-AppBuilder configuration
+  APP_NAME = "{{ .Values.app.name }}"
+  APP_ICON = "{{ .Values.app.icon }}"
+  APP_THEME = "{{ .Values.app.theme }}"
+  # SQLite database
+  SQLALCHEMY_DATABASE_URI = 'sqlite:////data/{{ .Values.persistence.dbFile }}'
+  SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+app:
+  secretKey: "your-secret-key"
+  name: "PyMyRedis"
+  icon: "/static/img/logo-transparent.png"
+  theme: "yeti.css"
+
+persistence:
+  enabled: true
+  storageClass: "default"
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  dbFile: "app.db"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  pymyredis:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-01-06T22:33:37.470624+03:00"
+    description: A Helm chart for pymyredis application
+    digest: 6b0571354a6405a7c48d0f01663f4a2eb0e8ec7f853436184b828ff78d3dc34c
+    name: pymyredis
+    type: application
+    urls:
+    - ozanonurtek.github.io/pymyredis/helm/charts/pymyredis-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-01-06T22:33:37.469974+03:00"
