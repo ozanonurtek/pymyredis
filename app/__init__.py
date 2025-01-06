@@ -1,13 +1,16 @@
 from flask import Flask
 from flask_appbuilder import AppBuilder, SQLA
 
+import os
 appbuilder = None
 db = None
 
 
+
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('config')
+    config_path = os.getenv('FLASK_CONFIG', 'config')
+    app.config.from_object(config_path)
     global db
     db = SQLA(app)
     create_views(app)

@@ -24,7 +24,7 @@ spec:
             - containerPort: 8080
           env:
             - name: FLASK_CONFIG
-              value: "/config/config.py"
+              value: "/config/{{ include "pymyredis.fullname" . }}-config"
           volumeMounts:
             - name: config-volume
               mountPath: /config
