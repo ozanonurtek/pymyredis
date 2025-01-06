@@ -9,6 +9,6 @@ entries:
     name: pymyredis
     type: application
     urls:
-    - ozanonurtek.github.io/pymyredis/helm/charts/pymyredis-0.1.0.tgz
+    - pymyredis-0.1.0.tgz
     version: 0.1.0
 generated: "2025-01-06T22:33:37.469974+03:00"
